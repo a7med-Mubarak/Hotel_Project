@@ -50,17 +50,32 @@ export default function Login() {
             {...register('password',{
               required:"password is required"
             })}/>
-            <Button type='submit' variant="contained">Contained</Button>
+            <Button type='submit' variant="contained">Login</Button>
               </Stack>
             </form>
           </Stack>
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
-          <Stack>
-            <img src={logo} alt="logo"/>
-          </Stack>
+  <Stack 
+    sx={{ 
+      height: { xs: 'auto', md: '100vh' }, 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      padding: { xs: '2rem', md: '5rem' } 
+    }}
+  >
+    <img 
+      src={logo} 
+      alt="logo" 
+      style={{ 
+        width: '100%', 
+        maxWidth: '500px',  // لتحديد الحد الأقصى لعرض الصورة
+        height: 'auto', 
+        objectFit: 'contain' 
+      }} 
+    />
+  </Stack>
         </Grid>
-
       </Grid>
     </Box>
   );
