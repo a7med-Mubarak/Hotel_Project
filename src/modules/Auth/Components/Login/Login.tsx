@@ -1,82 +1,109 @@
-import * as React from 'react';
-import { Box, Stack, Typography } from '@mui/material'; 
-import Grid from '@mui/material/Grid';
-import logo from "../../../../assets/Group.png"
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { useForm } from 'react-hook-form';
+import authLogin from "../../../../assets/Auth/login.png"
+import TextField from "@mui/material/TextField"
+import Button from "@mui/material/Button"
+import { useForm } from "react-hook-form"
+import { Link, useNavigate } from "react-router-dom"
+import axios from "axios"
+import { AUTH_ADMIN_ENDPOINTS } from "../../../../utils/ENDPOINTS"
+import { toast } from "react-toastify"
+import AuthComponent from "../../../../utils/Reusable/AuthComponent/AuthComponent"
 
-interface formValues{
-  email:string;
-  password:string;
+interface formValues {
+  email: string
+  password: string
 }
 export default function Login() {
-  // send data
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm <formValues>({ defaultValues:{email:"",password:""}});
-  
-  const Submit=(data:formValues)=>{
-    console.log(data)
-
+  } = useForm<formValues>({ defaultValues: { email: "", password: "" } })
+  const navigate = useNavigate()
+  const Submit = async (data: formValues) => {
+    try {
+      const response = await axios.post(AUTH_ADMIN_ENDPOINTS.LOGIN, data)
+      localStorage.setItem("token", response.data.data.token)
+      toast.success("Logged in successfully")
+      navigate("/dashboard")
+    } catch (error: any) {
+      toast.error(error?.response.data.message)
+    }
+  }
+  const form = () => {
+    return (
+      <form onSubmit={handleSubmit(Submit)} className="mt-5 md:p-10">
+        <div className="gap-4 flex flex-col">
+          <h3 className="text-6xl">Sign in</h3>
+          <p>
+            If you don’t have an account register <br /> You can{" "}
+            <Link
+              className="font-bold hover:underline transition-all duration-300 text-main"
+              to={"/register"}
+            >
+              Register here
+            </Link>
+            !
+          </p>
+        </div>
+        <div className="mt-10">
+          <label htmlFor="email" className="text-main ">
+            Email Address
+          </label>
+          <TextField
+            {...register("email", { required: true })}
+            error={errors.email ? true : false}
+            variant="outlined"
+            className="w-full mt-5"
+            id="email"
+            label="Please type here ..."
+            helperText={errors.email ? "Email is required" : ""}
+          />
+        </div>
+        <div className="mt-10">
+          <label htmlFor="password" className="text-main ">
+            Password
+          </label>
+          <TextField
+            {...register("password", { required: true })}
+            error={errors.password ? true : false}
+            variant="outlined"
+            className="w-full mt-5"
+            id="password"
+            label="Please type here ..."
+            helperText={errors.password ? "Password is required" : ""}
+          />
+        </div>
+        <div className="flex justify-end mt-2">
+          <Link
+            className="hover:underline transition-all duration-300"
+            to={"/forgot-password"}
+          >
+            Forgot password?
+          </Link>
+        </div>
+        <Button
+          type="submit"
+          variant="contained"
+          className="w-full"
+          color="primary"
+          sx={{
+            mt: 5,
+            backgroundColor: "var(--btn-color)",
+          }}
+        >
+          Sign in
+        </Button>
+      </form>
+    )
   }
   return (
-    <Box sx={{ width: '100%' }}>
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-        <Grid item xs={12} sm={6} md={6}>
-          <Stack sx={{padding:"5rem"}}>
-            <Typography variant='h6'className='mb-5'>
-            Staycation.
-            </Typography>
-            <Typography variant='h3' sx={{padding:"5px 0"}}>
-            Sign in
-            </Typography>
-            <Typography variant='h6'sx={{marginBottom:"2rem"}}>
-            If you don’t have an account register,You can   Register here !
-            </Typography>
-            <form onSubmit={handleSubmit(Submit)}>
-              <Stack spacing={2}>
-            <TextField type='email' id="outlined-basic1" label="Email" variant="outlined" 
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            {...register('email',{
-              required:"email is required"
-            })} />
-            <TextField type='password' id="outlined-basic2" label="Password" variant="outlined"
-             error={!!errors.password}
-             helperText={errors.password?.message}
-            {...register('password',{
-              required:"password is required"
-            })}/>
-            <Button type='submit' variant="contained">Login</Button>
-              </Stack>
-            </form>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} sm={12} md={6}>
-  <Stack 
-    sx={{ 
-      height: { xs: 'auto', md: '100vh' }, 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      padding: { xs: '2rem', md: '5rem' } 
-    }}
-  >
-    <img 
-      src={logo} 
-      alt="logo" 
-      style={{ 
-        width: '100%', 
-        maxWidth: '500px',  // لتحديد الحد الأقصى لعرض الصورة
-        height: 'auto', 
-        objectFit: 'contain' 
-      }} 
-    />
-  </Stack>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+    <>
+      <AuthComponent
+        form={form()}
+        image={authLogin}
+        imgHeader="Sign in to Roamhome"
+        imgText="Homes as unique as you."
+      />
+    </>
+  )
 }
