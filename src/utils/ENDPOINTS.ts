@@ -8,6 +8,7 @@ const AUTH_ADMIN_ENDPOINTS = {
   RESET_PASSWORD: `${BASE_AUTH_ADMIN}/reset-password`,
   CHANGE_PASSWORD: `${BASE_AUTH_ADMIN}/change-password`,
   GET_USER: `${BASE_AUTH_ADMIN}/me`,
+  CHART: `${BASE_AUTH_ADMIN}/dashboard`
 }
 
 const PORTAL_AUTH_URL = `${BASE_URL}/portal/users`
