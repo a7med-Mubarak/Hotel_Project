@@ -9,7 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-// import { SelectChangeEvent } from "@mui/material/Select";
+import { SelectChangeEvent } from "@mui/material/Select";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -23,17 +23,18 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import axios from "axios";
 import Modal from "@mui/material/Modal";
 import delimg from "../../../../../assets/Auth/Email.png";
-import {
-  ADS_ADMIN_ENDPOINTS,
-} from "../../../../../utils/ENDPOINTS";
+import { ROOM_ADMIN_ENDPOINTS } from "../../../../../utils/ENDPOINTS";
 import { toast } from "react-toastify";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 
-const StyledTableCell = styled(TableCell)(({  }) => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   "&.MuiTableCell-head": {
     backgroundColor: "rgba(226, 229, 235, 1)",
     color: "black",
@@ -65,28 +66,24 @@ const style = {
 };
 
 interface Room {
+  roomNumber: number;
+  images: string;
+  capacity: number;
+  price: number;
+  discount: number;
+  category: string;
   _id: number;
   page: number;
   size: number;
   name: string;
-  roomNumber: number;
-    images: string;
-    capacity: number;
-    price: number;
-    discount: number;
-    category: string;
-  room: {
-    roomNumber: number;
-    images: string;
-    capacity: number;
-    price: number;
-    discount: number;
-    category: string;
-  };
 }
 
+interface Facility {
+  name: string;
+  id: number;
+}
 
-export default function Ads() {
+export default function Rooms() {
   const nav = useNavigate();
   const [idRoom, setIdRoom] = React.useState<number | undefined>(undefined);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -116,26 +113,26 @@ export default function Ads() {
     setOpenmodal(true);
   };
 
-  // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
-  // const handleFacilityChange = (event: SelectChangeEvent<string>) => {
-  //   setSelectedFacility(event.target.value); // تعيين القيمة المحددة
-  // };
+  const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
+  const handleFacilityChange = (event: SelectChangeEvent<string>) => {
+    setSelectedFacility(event.target.value); // تعيين القيمة المحددة
+  };
 
   const handleModalClose = () => setOpenmodal(false);
 
-  const getAds = async (pageNo: number, pageSize: number, name: string) => {
+  const getRooms = async (pageNo: number, pageSize: number, name: string) => {
     const token = localStorage.getItem("token");
     try {
       setLoading(true);
-      const response = await axios.get(ADS_ADMIN_ENDPOINTS.getAds, {
+      const response = await axios.get(ROOM_ADMIN_ENDPOINTS.getRooms, {
         headers: {
           Authorization: `${token}`,
         },
         params: { page: pageNo, size: pageSize, roomNumber: name },
       });
 
-      setRows(response.data.data.ads); // تخزين الغرف
-      console.log(response.data.data.ads); // تخزين الغرف
+      setRows(response.data.data.rooms); // تخزين الغرف
+      // console.log(response.data.data.rooms); // تخزين الغرف
       // لا نحتاج لتعيين المصفوفة هنا لـ page، بل نحتفظ بالصفحة الحالية
       // نقوم بتعيين `pageNo` فقط:
       setPage(pageNo); // تحديث الصفحة الحالية
@@ -150,7 +147,7 @@ export default function Ads() {
   // delete
   const deleteRoom = async (_id: number) => {
     try {
-      await axios.delete(ADS_ADMIN_ENDPOINTS.delete(_id), {
+      await axios.delete(ROOM_ADMIN_ENDPOINTS.delete(_id), {
         // تعديل هنا
         headers: {
           Authorization: `${token}`,
@@ -164,15 +161,32 @@ export default function Ads() {
     }
   };
 
+  // facility
+  const [getfacility, setgetfacility] = React.useState<Facility[]>([]);
+  const facilityRoom = async () => {
+    try {
+      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.facility, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      setgetfacility(res.data.data.facilities);
+      console.log(res.data.data.facilities);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // search
   const searchbyname = (input: React.ChangeEvent<HTMLInputElement>) => {
     console.log(input.target.value);
     setsearchname(input.target.value);
-    getAds(1, 2, input.target.value);
+    getRooms(1, 2, input.target.value);
   };
 
   React.useEffect(() => {
-    getAds(1, 2, "");
+    getRooms(1, 2, "");
+    facilityRoom();
   }, []);
 
   return (
@@ -187,7 +201,7 @@ export default function Ads() {
       >
         <Box className="pro-info" mb={{ xs: 2, md: 0 }}>
           <Typography variant="h2" fontSize={"20px"} fontWeight={"600"}>
-            Ads Table Details
+            Rooms Table Details
           </Typography>
           <Typography variant="h4" fontSize={"14px"} fontWeight={"400"}>
             You can check all details
@@ -195,7 +209,7 @@ export default function Ads() {
         </Box>
         <Box className="btn">
           <Button
-            onClick={() => nav("/dashboard/create-ads")}
+            onClick={() => nav("/dashboard/create-room")}
             variant="contained"
             color="warning"
             sx={{
@@ -207,7 +221,7 @@ export default function Ads() {
             }}
             startIcon={<AddIcon />}
           >
-            Add New Ads
+            Add New Room
           </Button>
         </Box>
       </Box>
@@ -222,9 +236,40 @@ export default function Ads() {
           id="outlined-basic"
           label="Search"
           variant="outlined"
-          style={{ width: "100%" }}
+          style={{ width: "50%" }}
           onChange={searchbyname}
         />
+        {/* <Box sx={{ minWidth: "20%", display: "inline-block" }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Age</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Age"
+            >
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+        </Box> */}
+        <Box sx={{ minWidth: "20%", display: "inline-block" }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Facilities</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedFacility} // تأكد من أن القيمة دائما موجودة
+              onChange={handleFacilityChange} // التعامل مع تغيير القيمة
+            >
+              {getfacility?.map((item, id) => (
+                <MenuItem key={id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       {/* modal delete */}
@@ -287,34 +332,31 @@ export default function Ads() {
                 <StyledTableCell align="center">Capacity</StyledTableCell>
                 <StyledTableCell align="center">Price</StyledTableCell>
                 <StyledTableCell align="center">Discount</StyledTableCell>
-                <StyledTableCell align="center">Active</StyledTableCell>
                 <StyledTableCell align="center"></StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows && rows.length > 0 ? (
-                rows.map((item, id) => (
-                  <StyledTableRow key={id}>
-                    {" "}
-                    {/* استخدم _id كقيمة فريدة لـ key */}
+                rows.map((item) => (
+                  <StyledTableRow key={item.roomNumber}>
                     <StyledTableCell component="th" scope="row">
-                      {item.room.roomNumber}
+                      {item.roomNumber}
                     </StyledTableCell>
                     <StyledTableCell align="center">
                       <img
-                        src={item.room.images}
+                        src={item.images}
                         alt="room"
                         style={{ width: "60px", height: "60px" }}
                       />
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.capacity}
+                      {item.capacity}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.price}
+                      {item.price}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.discount}
+                      {item.discount}
                     </StyledTableCell>
                     <StyledTableCell align="center">
                       <Button
@@ -404,8 +446,8 @@ export default function Ads() {
           count={10}
           page={page}
           onChange={(event, value) => {
-            setPage(value); // تحديث الصفحة بناءً على القيمة الجديدة
-            getAds(value, 2, searchname); // تمرير قيمة البحث الحالية إذا كانت موجودة
+            setPage(value); // تحديث الصفحة بناءً على القيمة المختارة
+            getRooms(value, 2, ""); // تحديث البيانات بناءً على الصفحة الجديدة
           }}
         />
       </Stack>
