@@ -4,6 +4,7 @@ import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { toast } from 'react-toastify';
+import { AUTH_ADMIN_ENDPOINTS } from '../../../../../utils/ENDPOINTS';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -12,12 +13,11 @@ export default function Home() {
 
   const Submit = async () => {
     try {
-      const response = await axios.get(`https://upskilling-egypt.com:3000/api/v0/admin/dashboard`, {
+      const response = await axios.get(AUTH_ADMIN_ENDPOINTS.CHART, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log(response);
       setDashboardData(response.data.data);
     } catch (error: any) {
       toast.error(error?.response.data.message);
