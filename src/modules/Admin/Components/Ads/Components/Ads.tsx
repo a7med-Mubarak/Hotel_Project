@@ -12,7 +12,7 @@ import {
   Select,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-// import { SelectChangeEvent } from "@mui/material/Select";
+import { SelectChangeEvent } from "@mui/material/Select";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -70,7 +70,7 @@ const style = {
 };
 
 interface Facility {
-  name: string;
+  roomNumber: number;
   _id: number;
 }
 
@@ -86,6 +86,7 @@ interface Room {
   discount: number;
   category: string;
   facilities?: Facility[];
+  isActive: boolean;
   room: {
     name: string;
     roomNumber: number;
@@ -136,6 +137,7 @@ export default function Ads() {
   };
   // modal delete
   const handleModal2Close = () => setOpenmodal_2(false);
+
   const handleModal2Open = (_id: number) => {
     setIdRoom(_id);
     setOpenmodal_2(true);
@@ -147,7 +149,7 @@ export default function Ads() {
       setLoading(true);
       const response = await axios.get(ADS_ADMIN_ENDPOINTS.getAds, {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
         params: { page: pageNo, size: pageSize, roomNumber: name },
       });
@@ -164,28 +166,17 @@ export default function Ads() {
       setLoading(false);
     }
   };
-  const getRooms = async () => {
-    try {
-      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.getRooms, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      // console.log(res)
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
   const [facilities, setFacilities] = React.useState<Facility[]>([]);
   const fetchFacilities = async () => {
     try {
-      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.facility, {
+      const res = await axios.get(ROOM_ADMIN_ENDPOINTS.createRooms, {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      setFacilities(res.data.data.facilities);
-      console.log(res.data.data.facilities.name);
+      setFacilities(res.data.data.rooms);
+      console.log(res.data.data.rooms);
     } catch (error) {
       console.error(error);
     }
@@ -193,28 +184,10 @@ export default function Ads() {
   const createAds = async (data: Room) => {
     console.log("Submitted Data:", data);
 
-    const formData = new FormData();
-
-    // // Append room number
-    // if (data.roomNumber !== undefined) {
-    //   formData.append("roomNumber", data.roomNumber.toString());
-    // } else {
-    //   toast.error("Room number is required");
-    //   return;
-    // }
-
-    // Append discount
-    if (data.discount !== undefined) {
-      formData.append("discount", data.discount.toString());
-    } else {
-      toast.error("Discount is required");
-      return;
-    }
-
     try {
-      const res = await axios.post(ADS_ADMIN_ENDPOINTS.createAds, formData, {
+      const res = await axios.post(ADS_ADMIN_ENDPOINTS.createAds, data, {
         headers: {
-          Authorization: `${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       console.log(res);
@@ -259,7 +232,7 @@ export default function Ads() {
 
   React.useEffect(() => {
     getAds(1, 2, "");
-    getRooms();
+    // getRooms();
     fetchFacilities();
   }, []);
 
@@ -283,7 +256,7 @@ export default function Ads() {
         </Box>
         <Box className="btn">
           <Button
-            onClick={() => nav("/dashboard/create-ads")}
+            onClick={() => handleModal2Open()}
             variant="contained"
             color="warning"
             sx={{
@@ -353,56 +326,83 @@ export default function Ads() {
         </Box>
       </Modal>
       {/* modal Add */}
+
       <Modal
         open={openmodal_2}
         onClose={handleModal2Close}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style} textAlign={"center"}>
+        <Box sx={style} textAlign={"left"}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Ads
           </Typography>
           <form onSubmit={handleSubmit(createAds)}>
-  <Controller
-    name="facilities"
-    control={control}
-    defaultValue={[]}
-    render={({ field }) => (
-      <FormControl fullWidth>
-        <InputLabel id="facility-select-label">Facilities</InputLabel>
-        <Select
-          labelId="facility-select-label"
-          id="facility-select"
-          multiple
-          {...field} // Make sure to spread the field properties here
-        >
-          {facilities.map((facility) => (
-            <MenuItem key={facility._id} value={facility._id}>
-              {facility.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    )}
-  />
-  
-  <TextField
-    fullWidth
-    type="text"
-    label="Discount"
-    variant="outlined"
-    placeholder="Discount"
-    {...register("discount", { required: "Discount is required" })}
-    error={!!errors.discount}
-    helperText={errors.discount?.message}
-  />
-  
-  <Button type="submit" style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}>
-    Confirm Edit
-  </Button>
-</form>
+            <Controller
+               name="room"
+               control={control}
+            
+              render={({ field }) => (
+                <FormControl fullWidth>
+                  <InputLabel id="facility-select-label">Room Name </InputLabel>
+                  <Select
+                    labelId="facility-select-label"
+                    id="facility-select"
+                    {...field} // Make sure to spread the field properties here
+                    style={{ marginBottom: "20px" }}
+                  >
+                    {facilities.map((facility) => (
+                      <MenuItem key={facility._id} value={facility._id}>
+                        {facility.roomNumber}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            />
 
+            <TextField
+              fullWidth
+              type="text"
+              label="Discount"
+              variant="outlined"
+              placeholder="Discount"
+              {...register("discount", { required: "Discount is required" })}
+              error={!!errors.discount}
+              helperText={errors.discount?.message}
+              style={{ marginBottom: "20px" }}
+            />
+            <Controller
+              name="isActive"
+              control={control}
+              defaultValue={true}
+              render={({ field }) => (
+                <FormControl fullWidth>
+                  <InputLabel id="facility-select-label">Is Active </InputLabel>
+                  <Select
+                    labelId="facility-select-label"
+                    id="facility-select"
+                    {...field} // Make sure to spread the field properties here
+                    style={{ marginBottom: "20px" }}
+                  >
+                    <MenuItem value={true}>true</MenuItem>
+                    <MenuItem value={false}>false</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+            />
+
+            <Button
+              type="submit"
+              style={{
+                backgroundColor: "rgba(32, 63, 199, 1)",
+                color: "#fff",
+                margin: "10px 2px",
+              }}
+            >
+              Confirm Edit
+            </Button>
+          </form>
         </Box>
       </Modal>
 
@@ -532,7 +532,7 @@ export default function Ads() {
               ) : (
                 <StyledTableRow>
                   <StyledTableCell colSpan={6} align="center">
-                    No rooms available
+                    No Ads available
                   </StyledTableCell>
                 </StyledTableRow>
               )}
