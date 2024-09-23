@@ -98,6 +98,11 @@ export default function Ads() {
   const [searchname, setsearchname] = React.useState("");
   const token = localStorage.getItem("token");
 
+
+    // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
+  // const handleFacilityChange = (event: SelectChangeEvent<string>) => {
+  //   setSelectedFacility(event.target.value); // تعيين القيمة المحددة
+  // };
   const handleClick = (
     event: React.MouseEvent<HTMLButtonElement>,
     row: Room
@@ -111,17 +116,21 @@ export default function Ads() {
     setSelectedRow(null);
   };
 
+  // modal delete
+  const handleModalClose = () => setOpenmodal(false);
   const handleModalOpen = (_id: number) => {
     setIdRoom(_id);
     setOpenmodal(true);
   };
+  // modal delete
+  const handleModal2Close = () => setOpenmodal(false);
+  const handleModal2Open = (_id: number) => {
+    setIdRoom(_id);
+    setOpenmodal(true);
+  };
 
-  // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
-  // const handleFacilityChange = (event: SelectChangeEvent<string>) => {
-  //   setSelectedFacility(event.target.value); // تعيين القيمة المحددة
-  // };
 
-  const handleModalClose = () => setOpenmodal(false);
+
 
   const getAds = async (pageNo: number, pageSize: number, name: string) => {
     const token = localStorage.getItem("token");
@@ -228,6 +237,43 @@ export default function Ads() {
       </Box>
 
       {/* modal delete */}
+      <Modal
+        open={openmodal}
+        onClose={handleModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style} textAlign={"center"}>
+          <img src={delimg} alt="dleteImage" style={{ margin: "auto" }} />
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Delete This Ads Room ?
+          </Typography>
+          <Typography id="modal-modal-description">
+            are you sure you want to delete this item ? if you are sure just
+            click on delete it
+          </Typography>
+          <Button
+            style={{
+              backgroundColor: "rgba(32, 63, 199, 1)",
+              color: "#fff",
+              margin: "10px 5px",
+            }}
+            onClick={handleModalClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}
+            onClick={() => {
+              deleteRoom(idRoom || 0);
+              handleModalClose();
+            }}
+          >
+            Confirm Delete
+          </Button>
+        </Box>
+      </Modal>
+      {/* modal Add */}
       <Modal
         open={openmodal}
         onClose={handleModalClose}
