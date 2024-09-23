@@ -1,6 +1,7 @@
 const BASE_URL = "https://upskilling-egypt.com:3000/api/v0"
 
 const BASE_AUTH_ADMIN = `${BASE_URL}/admin/users`
+export const IMG_BASE_URL="https://upskilling-egypt.com:3000"
 
 const AUTH_ADMIN_ENDPOINTS = {
   LOGIN: `${BASE_AUTH_ADMIN}/login`,
@@ -21,4 +22,21 @@ const PORTAL_AUTH_ENDPOINTS = {
   GET_USER: `${PORTAL_AUTH_URL}/me`,
 }
 
-export { AUTH_ADMIN_ENDPOINTS, PORTAL_AUTH_ENDPOINTS }
+
+const BASE_ROOM_ADMIN = `${BASE_URL}/admin/rooms`
+
+const ROOM_ADMIN_ENDPOINTS = {
+  getRooms: BASE_ROOM_ADMIN,
+  createRooms: BASE_ROOM_ADMIN,
+  facility: "https://upskilling-egypt.com:3000/api/v0/admin/room-facilities",
+  delete: (id: number) => `${BASE_ROOM_ADMIN}/${id}`, // استخدام ${id} بدلاً من $(id)
+};
+const BASE_ADS_ADMIN = `${BASE_URL}/admin/ads`
+
+const ADS_ADMIN_ENDPOINTS = {
+  getAds: BASE_ADS_ADMIN,
+  createAds: BASE_ADS_ADMIN,
+  facility: "https://upskilling-egypt.com:3000/api/v0/admin/room-facilities",
+  delete: (id: number) => `${BASE_ADS_ADMIN}/${id}`, // استخدام ${id} بدلاً من $(id)
+};
+export { AUTH_ADMIN_ENDPOINTS, PORTAL_AUTH_ENDPOINTS, ROOM_ADMIN_ENDPOINTS, ADS_ADMIN_ENDPOINTS }
