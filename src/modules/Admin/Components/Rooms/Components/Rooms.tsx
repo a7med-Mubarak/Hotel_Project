@@ -185,7 +185,7 @@ export default function Rooms() {
   };
 
   React.useEffect(() => {
-    getRooms(1, 2, "");
+    getRooms(1, 8, "");
     facilityRoom();
   }, []);
 
@@ -239,20 +239,6 @@ export default function Rooms() {
           style={{ width: "50%" }}
           onChange={searchbyname}
         />
-        {/* <Box sx={{ minWidth: "20%", display: "inline-block" }}>
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Age</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              label="Age"
-            >
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-          </FormControl>
-        </Box> */}
         <Box sx={{ minWidth: "20%", display: "inline-block" }}>
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">Facilities</InputLabel>
@@ -273,6 +259,43 @@ export default function Rooms() {
       </Box>
 
       {/* modal delete */}
+      <Modal
+        open={openmodal}
+        onClose={handleModalClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style} textAlign={"center"}>
+          <img src={delimg} alt="dleteImage" style={{ margin: "auto" }} />
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Delete This Ads Room ?
+          </Typography>
+          <Typography id="modal-modal-description">
+            are you sure you want to delete this item ? if you are sure just
+            click on delete it
+          </Typography>
+          <Button
+            style={{
+              backgroundColor: "rgba(32, 63, 199, 1)",
+              color: "#fff",
+              margin: "10px 5px",
+            }}
+            onClick={handleModalClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}
+            onClick={() => {
+              deleteRoom(idRoom || 0);
+              handleModalClose();
+            }}
+          >
+            Confirm Delete
+          </Button>
+        </Box>
+      </Modal>
+      {/* view */}
       <Modal
         open={openmodal}
         onClose={handleModalClose}
@@ -447,7 +470,7 @@ export default function Rooms() {
           page={page}
           onChange={(event, value) => {
             setPage(value); // تحديث الصفحة بناءً على القيمة المختارة
-            getRooms(value, 2, ""); // تحديث البيانات بناءً على الصفحة الجديدة
+            getRooms(value, 8, ""); // تحديث البيانات بناءً على الصفحة الجديدة
           }}
         />
       </Stack>

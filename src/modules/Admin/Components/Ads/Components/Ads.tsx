@@ -7,6 +7,9 @@ import {
   TableHead,
   TableRow,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // import { SelectChangeEvent } from "@mui/material/Select";
@@ -28,12 +31,14 @@ import Modal from "@mui/material/Modal";
 import delimg from "../../../../../assets/Auth/Email.png";
 import {
   ADS_ADMIN_ENDPOINTS,
+  ROOM_ADMIN_ENDPOINTS,
 } from "../../../../../utils/ENDPOINTS";
 import { toast } from "react-toastify";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import { Controller, useForm } from "react-hook-form";
 
-const StyledTableCell = styled(TableCell)(({  }) => ({
+const StyledTableCell = styled(TableCell)(({}) => ({
   "&.MuiTableCell-head": {
     backgroundColor: "rgba(226, 229, 235, 1)",
     color: "black",
@@ -64,33 +69,41 @@ const style = {
   p: 4,
 };
 
+interface Facility {
+  name: string;
+  _id: number;
+}
+
 interface Room {
   _id: number;
   page: number;
   size: number;
   name: string;
   roomNumber: number;
-    images: string;
-    capacity: number;
-    price: number;
-    discount: number;
-    category: string;
+  images: string;
+  capacity: number;
+  price: number;
+  discount: number;
+  category: string;
+  facilities?: Facility[];
   room: {
+    name: string;
     roomNumber: number;
     images: string;
     capacity: number;
     price: number;
     discount: number;
     category: string;
+    facilities?: Facility[];
   };
 }
-
 
 export default function Ads() {
   const nav = useNavigate();
   const [idRoom, setIdRoom] = React.useState<number | undefined>(undefined);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [openmodal, setOpenmodal] = React.useState(false);
+  const [openmodal_2, setOpenmodal_2] = React.useState(false);
   const [rows, setRows] = React.useState<Room[] | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [selectedRow, setSelectedRow] = React.useState<Room | null>(null);
@@ -98,8 +111,7 @@ export default function Ads() {
   const [searchname, setsearchname] = React.useState("");
   const token = localStorage.getItem("token");
 
-
-    // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
+  // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
   // const handleFacilityChange = (event: SelectChangeEvent<string>) => {
   //   setSelectedFacility(event.target.value); // تعيين القيمة المحددة
   // };
@@ -123,14 +135,11 @@ export default function Ads() {
     setOpenmodal(true);
   };
   // modal delete
-  const handleModal2Close = () => setOpenmodal(false);
+  const handleModal2Close = () => setOpenmodal_2(false);
   const handleModal2Open = (_id: number) => {
     setIdRoom(_id);
-    setOpenmodal(true);
+    setOpenmodal_2(true);
   };
-
-
-
 
   const getAds = async (pageNo: number, pageSize: number, name: string) => {
     const token = localStorage.getItem("token");
@@ -144,7 +153,7 @@ export default function Ads() {
       });
 
       setRows(response.data.data.ads); // تخزين الغرف
-      console.log(response.data.data.ads); // تخزين الغرف
+      // console.log(response.data.data.ads); // تخزين الغرف
       // لا نحتاج لتعيين المصفوفة هنا لـ page، بل نحتفظ بالصفحة الحالية
       // نقوم بتعيين `pageNo` فقط:
       setPage(pageNo); // تحديث الصفحة الحالية
@@ -153,6 +162,67 @@ export default function Ads() {
       setRows([]);
     } finally {
       setLoading(false);
+    }
+  };
+  const getRooms = async () => {
+    try {
+      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.getRooms, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      // console.log(res)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const [facilities, setFacilities] = React.useState<Facility[]>([]);
+  const fetchFacilities = async () => {
+    try {
+      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.facility, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      setFacilities(res.data.data.facilities);
+      console.log(res.data.data.facilities.name);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const createAds = async (data: Room) => {
+    console.log("Submitted Data:", data);
+
+    const formData = new FormData();
+
+    // // Append room number
+    // if (data.roomNumber !== undefined) {
+    //   formData.append("roomNumber", data.roomNumber.toString());
+    // } else {
+    //   toast.error("Room number is required");
+    //   return;
+    // }
+
+    // Append discount
+    if (data.discount !== undefined) {
+      formData.append("discount", data.discount.toString());
+    } else {
+      toast.error("Discount is required");
+      return;
+    }
+
+    try {
+      const res = await axios.post(ADS_ADMIN_ENDPOINTS.createAds, formData, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      console.log(res);
+      toast.success("Room created successfully!");
+      // nav('dashboard/Room'); // Navigate to rooms page after success
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create room");
     }
   };
 
@@ -180,8 +250,17 @@ export default function Ads() {
     getAds(1, 2, input.target.value);
   };
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<Room>();
+
   React.useEffect(() => {
     getAds(1, 2, "");
+    getRooms();
+    fetchFacilities();
   }, []);
 
   return (
@@ -275,39 +354,55 @@ export default function Ads() {
       </Modal>
       {/* modal Add */}
       <Modal
-        open={openmodal}
-        onClose={handleModalClose}
+        open={openmodal_2}
+        onClose={handleModal2Close}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
         <Box sx={style} textAlign={"center"}>
-          <img src={delimg} alt="dleteImage" style={{ margin: "auto" }} />
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Delete This Ads Room ?
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Ads
           </Typography>
-          <Typography id="modal-modal-description">
-            are you sure you want to delete this item ? if you are sure just
-            click on delete it
-          </Typography>
-          <Button
-            style={{
-              backgroundColor: "rgba(32, 63, 199, 1)",
-              color: "#fff",
-              margin: "10px 5px",
-            }}
-            onClick={handleModalClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}
-            onClick={() => {
-              deleteRoom(idRoom || 0);
-              handleModalClose();
-            }}
-          >
-            Confirm Delete
-          </Button>
+          <form onSubmit={handleSubmit(createAds)}>
+  <Controller
+    name="facilities"
+    control={control}
+    defaultValue={[]}
+    render={({ field }) => (
+      <FormControl fullWidth>
+        <InputLabel id="facility-select-label">Facilities</InputLabel>
+        <Select
+          labelId="facility-select-label"
+          id="facility-select"
+          multiple
+          {...field} // Make sure to spread the field properties here
+        >
+          {facilities.map((facility) => (
+            <MenuItem key={facility._id} value={facility._id}>
+              {facility.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    )}
+  />
+  
+  <TextField
+    fullWidth
+    type="text"
+    label="Discount"
+    variant="outlined"
+    placeholder="Discount"
+    {...register("discount", { required: "Discount is required" })}
+    error={!!errors.discount}
+    helperText={errors.discount?.message}
+  />
+  
+  <Button type="submit" style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}>
+    Confirm Edit
+  </Button>
+</form>
+
         </Box>
       </Modal>
 
@@ -389,8 +484,8 @@ export default function Ads() {
                       >
                         <MenuItem
                           onClick={() => {
-                            nav(`/dashboard/rooms/${item.roomNumber}`);
-                            handleClose();
+                            handleModal2Open(item._id);
+                            handleModal2Close();
                           }}
                         >
                           <VisibilityIcon
@@ -403,8 +498,8 @@ export default function Ads() {
                         </MenuItem>
                         <MenuItem
                           onClick={() => {
-                            nav(`/dashboard/rooms/edit/${item.roomNumber}`);
-                            handleClose();
+                            handleModal2Open(item._id); // فتح الـ Modal2 باستخدام ID الغرفة
+                            handleClose(); // إغلاق القائمة
                           }}
                         >
                           <EditIcon
@@ -415,6 +510,7 @@ export default function Ads() {
                           />
                           Edit
                         </MenuItem>
+
                         <MenuItem
                           onClick={() => {
                             handleModalOpen(item._id);
