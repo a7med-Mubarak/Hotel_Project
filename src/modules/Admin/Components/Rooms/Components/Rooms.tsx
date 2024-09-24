@@ -7,9 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  FormControl,
-  InputLabel,
-  Select,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { SelectChangeEvent } from "@mui/material/Select";
@@ -26,19 +23,18 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import TextField from "@mui/material/TextField";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import axios from "axios";
 import Modal from "@mui/material/Modal";
 import delimg from "../../../../../assets/Auth/Email.png";
-import {
-  ADS_ADMIN_ENDPOINTS,
-  ROOM_ADMIN_ENDPOINTS,
-} from "../../../../../utils/ENDPOINTS";
+import { ROOM_ADMIN_ENDPOINTS } from "../../../../../utils/ENDPOINTS";
 import { toast } from "react-toastify";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
-import { Controller, useForm } from "react-hook-form";
 
-const StyledTableCell = styled(TableCell)(({}) => ({
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
   "&.MuiTableCell-head": {
     backgroundColor: "rgba(226, 229, 235, 1)",
     color: "black",
@@ -69,42 +65,29 @@ const style = {
   p: 4,
 };
 
-interface Facility {
-  roomNumber: number;
-  _id: number;
-}
-
 interface Room {
-  _id: number;
-  page: number;
-  size: number;
-  name: string;
   roomNumber: number;
   images: string;
   capacity: number;
   price: number;
   discount: number;
   category: string;
-  facilities?: Facility[];
-  isActive: boolean;
-  room: {
-    name: string;
-    roomNumber: number;
-    images: string;
-    capacity: number;
-    price: number;
-    discount: number;
-    category: string;
-    facilities?: Facility[];
-  };
+  _id: number;
+  page: number;
+  size: number;
+  name: string;
 }
 
-export default function Ads() {
+interface Facility {
+  name: string;
+  id: number;
+}
+
+export default function Rooms() {
   const nav = useNavigate();
   const [idRoom, setIdRoom] = React.useState<number | undefined>(undefined);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [openmodal, setOpenmodal] = React.useState(false);
-  const [openmodal_2, setOpenmodal_2] = React.useState(false);
   const [rows, setRows] = React.useState<Room[] | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [selectedRow, setSelectedRow] = React.useState<Room | null>(null);
@@ -112,10 +95,6 @@ export default function Ads() {
   const [searchname, setsearchname] = React.useState("");
   const token = localStorage.getItem("token");
 
-  // const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
-  // const handleFacilityChange = (event: SelectChangeEvent<string>) => {
-  //   setSelectedFacility(event.target.value); // تعيين القيمة المحددة
-  // };
   const handleClick = (
     event: React.MouseEvent<HTMLButtonElement>,
     row: Room
@@ -129,33 +108,31 @@ export default function Ads() {
     setSelectedRow(null);
   };
 
-  // modal delete
-  const handleModalClose = () => setOpenmodal(false);
   const handleModalOpen = (_id: number) => {
     setIdRoom(_id);
     setOpenmodal(true);
   };
-  // modal delete
-  const handleModal2Close = () => setOpenmodal_2(false);
 
-  const handleModal2Open = (_id: number) => {
-    setIdRoom(_id);
-    setOpenmodal_2(true);
+  const [selectedFacility, setSelectedFacility] = React.useState<string>(""); // إضافة حالة لتخزين القيمة المحددة
+  const handleFacilityChange = (event: SelectChangeEvent<string>) => {
+    setSelectedFacility(event.target.value); // تعيين القيمة المحددة
   };
 
-  const getAds = async (pageNo: number, pageSize: number, name: string) => {
+  const handleModalClose = () => setOpenmodal(false);
+
+  const getRooms = async (pageNo: number, pageSize: number, name: string) => {
     const token = localStorage.getItem("token");
     try {
       setLoading(true);
-      const response = await axios.get(ADS_ADMIN_ENDPOINTS.getAds, {
+      const response = await axios.get(ROOM_ADMIN_ENDPOINTS.getRooms, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
         params: { page: pageNo, size: pageSize, roomNumber: name },
       });
 
-      setRows(response.data.data.ads); // تخزين الغرف
-      // console.log(response.data.data.ads); // تخزين الغرف
+      setRows(response.data.data.rooms); // تخزين الغرف
+      // console.log(response.data.data.rooms); // تخزين الغرف
       // لا نحتاج لتعيين المصفوفة هنا لـ page، بل نحتفظ بالصفحة الحالية
       // نقوم بتعيين `pageNo` فقط:
       setPage(pageNo); // تحديث الصفحة الحالية
@@ -167,42 +144,10 @@ export default function Ads() {
     }
   };
 
-  const [facilities, setFacilities] = React.useState<Facility[]>([]);
-  const fetchFacilities = async () => {
-    try {
-      const res = await axios.get(ROOM_ADMIN_ENDPOINTS.createRooms, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setFacilities(res.data.data.rooms);
-      console.log(res.data.data.rooms);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const createAds = async (data: Room) => {
-    console.log("Submitted Data:", data);
-
-    try {
-      const res = await axios.post(ADS_ADMIN_ENDPOINTS.createAds, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(res);
-      toast.success("Room created successfully!");
-      // nav('dashboard/Room'); // Navigate to rooms page after success
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create room");
-    }
-  };
-
   // delete
   const deleteRoom = async (_id: number) => {
     try {
-      await axios.delete(ADS_ADMIN_ENDPOINTS.delete(_id), {
+      await axios.delete(ROOM_ADMIN_ENDPOINTS.delete(_id), {
         // تعديل هنا
         headers: {
           Authorization: `${token}`,
@@ -216,24 +161,32 @@ export default function Ads() {
     }
   };
 
+  // facility
+  const [getfacility, setgetfacility] = React.useState<Facility[]>([]);
+  const facilityRoom = async () => {
+    try {
+      let res = await axios.get(ROOM_ADMIN_ENDPOINTS.facility, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      setgetfacility(res.data.data.facilities);
+      console.log(res.data.data.facilities);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // search
   const searchbyname = (input: React.ChangeEvent<HTMLInputElement>) => {
     console.log(input.target.value);
     setsearchname(input.target.value);
-    getAds(1, 2, input.target.value);
+    getRooms(1, 2, input.target.value);
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm<Room>();
-
   React.useEffect(() => {
-    getAds(1, 2, "");
-    // getRooms();
-    fetchFacilities();
+    getRooms(1, 8, "");
+    facilityRoom();
   }, []);
 
   return (
@@ -248,7 +201,7 @@ export default function Ads() {
       >
         <Box className="pro-info" mb={{ xs: 2, md: 0 }}>
           <Typography variant="h2" fontSize={"20px"} fontWeight={"600"}>
-            Ads Table Details
+            Rooms Table Details
           </Typography>
           <Typography variant="h4" fontSize={"14px"} fontWeight={"400"}>
             You can check all details
@@ -256,7 +209,7 @@ export default function Ads() {
         </Box>
         <Box className="btn">
           <Button
-            onClick={() => handleModal2Open()}
+            onClick={() => nav("/dashboard/create-room")}
             variant="contained"
             color="warning"
             sx={{
@@ -268,7 +221,7 @@ export default function Ads() {
             }}
             startIcon={<AddIcon />}
           >
-            Add New Ads
+            Add New Room
           </Button>
         </Box>
       </Box>
@@ -283,9 +236,26 @@ export default function Ads() {
           id="outlined-basic"
           label="Search"
           variant="outlined"
-          style={{ width: "100%" }}
+          style={{ width: "50%" }}
           onChange={searchbyname}
         />
+        <Box sx={{ minWidth: "20%", display: "inline-block" }}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Facilities</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedFacility} // تأكد من أن القيمة دائما موجودة
+              onChange={handleFacilityChange} // التعامل مع تغيير القيمة
+            >
+              {getfacility?.map((item, id) => (
+                <MenuItem key={id} value={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
 
       {/* modal delete */}
@@ -325,84 +295,41 @@ export default function Ads() {
           </Button>
         </Box>
       </Modal>
-      {/* modal Add */}
-
+      {/* view */}
       <Modal
-        open={openmodal_2}
-        onClose={handleModal2Close}
+        open={openmodal}
+        onClose={handleModalClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style} textAlign={"left"}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Ads
+        <Box sx={style} textAlign={"center"}>
+          <img src={delimg} alt="dleteImage" style={{ margin: "auto" }} />
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Delete This Ads Room ?
           </Typography>
-          <form onSubmit={handleSubmit(createAds)}>
-            <Controller
-               name="room"
-               control={control}
-            
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel id="facility-select-label">Room Name </InputLabel>
-                  <Select
-                    labelId="facility-select-label"
-                    id="facility-select"
-                    {...field} // Make sure to spread the field properties here
-                    style={{ marginBottom: "20px" }}
-                  >
-                    {facilities.map((facility) => (
-                      <MenuItem key={facility._id} value={facility._id}>
-                        {facility.roomNumber}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
-
-            <TextField
-              fullWidth
-              type="text"
-              label="Discount"
-              variant="outlined"
-              placeholder="Discount"
-              {...register("discount", { required: "Discount is required" })}
-              error={!!errors.discount}
-              helperText={errors.discount?.message}
-              style={{ marginBottom: "20px" }}
-            />
-            <Controller
-              name="isActive"
-              control={control}
-              defaultValue={true}
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel id="facility-select-label">Is Active </InputLabel>
-                  <Select
-                    labelId="facility-select-label"
-                    id="facility-select"
-                    {...field} // Make sure to spread the field properties here
-                    style={{ marginBottom: "20px" }}
-                  >
-                    <MenuItem value={true}>true</MenuItem>
-                    <MenuItem value={false}>false</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-            />
-
-            <Button
-              type="submit"
-              style={{
-                backgroundColor: "rgba(32, 63, 199, 1)",
-                color: "#fff",
-                margin: "10px 2px",
-              }}
-            >
-              Confirm Edit
-            </Button>
-          </form>
+          <Typography id="modal-modal-description">
+            are you sure you want to delete this item ? if you are sure just
+            click on delete it
+          </Typography>
+          <Button
+            style={{
+              backgroundColor: "rgba(32, 63, 199, 1)",
+              color: "#fff",
+              margin: "10px 5px",
+            }}
+            onClick={handleModalClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            style={{ backgroundColor: "rgba(32, 63, 199, 1)", color: "#fff" }}
+            onClick={() => {
+              deleteRoom(idRoom || 0);
+              handleModalClose();
+            }}
+          >
+            Confirm Delete
+          </Button>
         </Box>
       </Modal>
 
@@ -428,34 +355,31 @@ export default function Ads() {
                 <StyledTableCell align="center">Capacity</StyledTableCell>
                 <StyledTableCell align="center">Price</StyledTableCell>
                 <StyledTableCell align="center">Discount</StyledTableCell>
-                <StyledTableCell align="center">Active</StyledTableCell>
                 <StyledTableCell align="center"></StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows && rows.length > 0 ? (
-                rows.map((item, id) => (
-                  <StyledTableRow key={id}>
-                    {" "}
-                    {/* استخدم _id كقيمة فريدة لـ key */}
+                rows.map((item) => (
+                  <StyledTableRow key={item.roomNumber}>
                     <StyledTableCell component="th" scope="row">
-                      {item.room.roomNumber}
+                      {item.roomNumber}
                     </StyledTableCell>
                     <StyledTableCell align="center">
                       <img
-                        src={item.room.images}
+                        src={item.images}
                         alt="room"
                         style={{ width: "60px", height: "60px" }}
                       />
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.capacity}
+                      {item.capacity}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.price}
+                      {item.price}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {item.room.discount}
+                      {item.discount}
                     </StyledTableCell>
                     <StyledTableCell align="center">
                       <Button
@@ -484,8 +408,8 @@ export default function Ads() {
                       >
                         <MenuItem
                           onClick={() => {
-                            handleModal2Open(item._id);
-                            handleModal2Close();
+                            nav(`/dashboard/rooms/${item.roomNumber}`);
+                            handleClose();
                           }}
                         >
                           <VisibilityIcon
@@ -498,8 +422,8 @@ export default function Ads() {
                         </MenuItem>
                         <MenuItem
                           onClick={() => {
-                            handleModal2Open(item._id); // فتح الـ Modal2 باستخدام ID الغرفة
-                            handleClose(); // إغلاق القائمة
+                            nav(`/dashboard/rooms/edit/${item.roomNumber}`);
+                            handleClose();
                           }}
                         >
                           <EditIcon
@@ -510,7 +434,6 @@ export default function Ads() {
                           />
                           Edit
                         </MenuItem>
-
                         <MenuItem
                           onClick={() => {
                             handleModalOpen(item._id);
@@ -532,7 +455,7 @@ export default function Ads() {
               ) : (
                 <StyledTableRow>
                   <StyledTableCell colSpan={6} align="center">
-                    No Ads available
+                    No rooms available
                   </StyledTableCell>
                 </StyledTableRow>
               )}
@@ -546,8 +469,8 @@ export default function Ads() {
           count={10}
           page={page}
           onChange={(event, value) => {
-            setPage(value); // تحديث الصفحة بناءً على القيمة الجديدة
-            getAds(value, 2, searchname); // تمرير قيمة البحث الحالية إذا كانت موجودة
+            setPage(value); // تحديث الصفحة بناءً على القيمة المختارة
+            getRooms(value, 8, ""); // تحديث البيانات بناءً على الصفحة الجديدة
           }}
         />
       </Stack>

@@ -1,39 +1,36 @@
-import React, { useContext } from 'react'
-import Navbar from '../Navbar/Navbar'
-import { Outlet } from 'react-router-dom'
-import Footer from '../Footer/Footer'
+import { Box, Drawer, CssBaseline, Toolbar } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../Sidebar/Sidebar';
+import Navbar from '../Navbar/Navbar';
 
-export default function MasterLayout() {
-
-  // const { userData } = useContext(AuthContext)
-
+export default function Layout() {
   return (
-    <>
-    {/* {userData?.userGroup === "Manager" ? (""): (<Navbar/>)} */}
+    <Box sx={{ display: 'flex' }}>
+      {/* Sidebar - Drawer Component from MUI */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: 240, // Fixed width for sidebar
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' }, // Sidebar fixed
+        }}
+      >
+        <Sidebar />
+      </Drawer>
 
+      {/* Main content area */}
+      <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
+        <CssBaseline />
+        {/* Navbar */}
+        <Toolbar>
+          <Navbar/>
+        </Toolbar>
 
-        <Outlet/>
-    {/* {userData?.userGroup === "Manager" ? (""): (<Footer/>)} */}
-
-    </>
-
-  )
+        {/* Content */}
+        <Box sx={{ m: 3 }}>
+          <Outlet />
+        </Box>
+      </Box>
+    </Box>
+  );
 }
-
-// import React, { useContext } from 'react';
-// import Navbar from '../Navbar/Navbar';
-// import { Outlet } from 'react-router-dom';
-// import Footer from '../Footer/Footer';
-// import { AuthContext } from '../../../../context/AuthContext';
-
-// export default function MasterLayout() {
-//   const authContext = useContext(AuthContext);
-
-//   return (
-//     <>
-//       {authContext?.userData?.userGroup === 'admin' && <Navbar />}
-//       <Outlet />
-//       {authContext?.userData?.userGroup === 'Manager' && <Footer />}
-//     </>
-//   );
-// }

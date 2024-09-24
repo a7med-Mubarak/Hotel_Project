@@ -22,6 +22,7 @@ export default function Login() {
   const Submit = async (data: formValues) => {
     try {
       const response = await axios.post(AUTH_ADMIN_ENDPOINTS.LOGIN, data)
+      console.log(response)
       localStorage.setItem("token", response.data.data.token)
       toast.success("Logged in successfully")
       navigate("/dashboard")
