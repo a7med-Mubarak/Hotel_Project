@@ -13,7 +13,6 @@ import Users from "./modules/Admin/Components/Users/componentes/Users";
 import ForgetPass from "./modules/Auth/Components/ForgetPass/ForgetPass";
 import Rooms from "./modules/Admin/Components/Rooms/Components/Rooms";
 import CreateRoom from "./modules/Admin/Components/Rooms/Components/CreateRoom";
-// import CreateAds from "./modules/Admin/Components/Ads/Components/CreateAds";
 import ProtectedRoutes from "./modules/Shared/Components/ProtectedRoutes/ProtectedRoutes";
 
 function App() {
@@ -53,9 +52,9 @@ function App() {
     {
       path: "dashboard",
       element: (
-        // <ProtectedRoutes>
+        <ProtectedRoutes>
           <MasterLayout />
-        // </ProtectedRoutes>
+        </ProtectedRoutes>
       ),
       errorElement: <Notfound />,
       children: [

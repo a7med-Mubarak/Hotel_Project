@@ -15,7 +15,7 @@ export default function Home() {
     try {
       const response = await axios.get(AUTH_ADMIN_ENDPOINTS.CHART, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `${localStorage.getItem("token")}`,
         },
       });
       setDashboardData(response.data.data);

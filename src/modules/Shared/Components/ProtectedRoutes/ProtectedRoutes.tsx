@@ -1,11 +1,12 @@
-import { Navigate } from 'react-router-dom'
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoutes({ logindata, children }) {
+interface ProtectedRoutesProps {
+  children: ReactNode;
+}
 
-    // التحقق من وجود token أو logindata
-    if (localStorage.getItem("token") || logindata) {
-        return children;
-    } else {
-        return <Navigate to={"/login"} />;
-    }
+export default function ProtectedRoutes({ children }: ProtectedRoutesProps) {
+
+  if (localStorage.getItem("token")) return children;
+  else return <Navigate to={"/login"} />;
 }

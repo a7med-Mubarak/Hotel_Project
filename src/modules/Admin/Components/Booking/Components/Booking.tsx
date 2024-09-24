@@ -28,7 +28,7 @@ export default function Booking() {
     try {
       const response = await axios.get(AUTH_ADMIN_ENDPOINTS.Booking, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `${localStorage.getItem("token")}`,
         },
         params: {
           pageNumber: pageNo,
@@ -71,9 +71,9 @@ export default function Booking() {
   };
 
   return (
-    <div className='ms-32 mt-24 mr-10'>
-      <div>
-        <h4>Booking Table Details</h4>
+    <div>
+      <div className='my-14'>
+        <h4 className='text-2xl'>Booking Table Details</h4>
         <h5>You can check all details</h5>
       </div>
 
