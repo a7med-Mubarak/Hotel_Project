@@ -1,7 +1,7 @@
 const BASE_URL = "https://upskilling-egypt.com:3000/api/v0";
 
-const BASE_AUTH_ADMIN = `${BASE_URL}/admin/users`;
-export const IMG_BASE_URL = "https://upskilling-egypt.com:3000";
+const BASE_AUTH_ADMIN = `${BASE_URL}/admin/users`
+export const IMG_BASE_URL="https://upskilling-egypt.com:3000"
 
 const AUTH_ADMIN_ENDPOINTS = {
   LOGIN: `${BASE_AUTH_ADMIN}/login`,
@@ -9,7 +9,7 @@ const AUTH_ADMIN_ENDPOINTS = {
   RESET_PASSWORD: `${BASE_AUTH_ADMIN}/reset-password`,
   CHANGE_PASSWORD: `${BASE_AUTH_ADMIN}/change-password`,
   GET_USER: `${BASE_AUTH_ADMIN}/me`,
-};
+}
 
 const PORTAL_AUTH_URL = `${BASE_URL}/portal/users`;
 

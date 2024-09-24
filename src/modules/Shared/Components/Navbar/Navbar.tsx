@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import logo from "../../../../assets/Auth/Username.png"
+import { Autocomplete, Stack, TextField } from '@mui/material';
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -33,10 +34,33 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
-  return (
-    <AppBar position="static"style={{background:"#fff",color:"#000",boxShadow:"none"}}>
+  return <>
+    <AppBar className='p-3 rounded' position="static"style={{backgroundColor:"whitesmoke",color:"#000",boxShadow:"none"}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+
+        <Stack sx={{ width: 1000 }}>
+      <Autocomplete
+        freeSolo
+        id="free-solo-2-demo"
+        disableClearable
+        options={[  ]}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Search input"
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                type: 'search',
+              },
+            }}
+          />
+        )}
+      />
+    </Stack>
+
+
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -102,6 +126,6 @@ function Navbar() {
         </Toolbar>
       </Container>
     </AppBar>
-  );
+  </>;
 }
 export default Navbar;
