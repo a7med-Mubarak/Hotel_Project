@@ -39,7 +39,7 @@ function Navbar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 
-        <Stack sx={{ width: 900 }}>
+        <Stack sx={{ width: 1000 }}>
       <Autocomplete
         freeSolo
         id="free-solo-2-demo"
