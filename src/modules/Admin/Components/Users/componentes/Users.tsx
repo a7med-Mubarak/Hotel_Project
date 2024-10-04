@@ -71,7 +71,7 @@ export default function Users() {
             <TableRow>
               <StyledTableCell>UserName </StyledTableCell>
               <StyledTableCell align="right">Image </StyledTableCell>
-              <StyledTableCell align="right">Email </StyledTableCell>
+              <StyledTableCell align="right">Emaill </StyledTableCell>
               <StyledTableCell align="right">Phone Number </StyledTableCell>
               <StyledTableCell align="right">Country </StyledTableCell>
               
